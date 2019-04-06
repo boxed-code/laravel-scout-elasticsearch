@@ -5,13 +5,13 @@
 
 A basic [elastic](https://www.elastic.co/products/elasticsearch) search backed driver [for Laravel Scout](https://laravel.com/docs/5.8/scout). 
 
-This driver has a simple configuration, requiring you to only publish the configuration and set the hostname of your elasticsearch node.
+This driver has a simple configuration, requiring you to set the hostname of your elasticsearch node.
 
 Note that this driver uses a separate index for each model type as elasticsearch mapping types have been deprecated in elasticsearch 6.0 and will be removed in 8.0, for more information see https://bit.ly/2TZVZvq.
 
-By default, the driver uses the `simple_query_string' full text parser with `and` set as the default operator. More information on the functionality & syntax of this query format can be found (here)[https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html].
+By default, the driver uses the `simple_query_string` full text parser with `and` as the default operator. More information on the functionality & syntax of this query format can be found [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html).
 
-Based on the original work of [ErickTamayo](https://github.com/ErickTamayo/laravel-scout-elastic). **Requires Scout ^5.0, ^6.0, or ^7.0, Laravel >=5.4, PHP >=7.0**
+**Requires Scout ^5.0, ^6.0 or ^7.0, Laravel >=5.4 & PHP >=7.0**. Based on the original work of [ErickTamayo](https://github.com/ErickTamayo/laravel-scout-elastic)
 
 ## Contents
 

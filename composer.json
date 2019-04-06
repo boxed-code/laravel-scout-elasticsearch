@@ -1,5 +1,5 @@
 {
-    "name": "boxed-code/laravel-scout-elastic",
+    "name": "boxed-code/laravel-scout-elasticsearch",
     "description": "Elasticsearch Driver for Laravel Scout",
     "keywords": ["laravel", "scout", "elasticsearch", "elastic", "aws", "elasticsearch service"],
     "license": "MIT",
