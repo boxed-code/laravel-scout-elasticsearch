@@ -62,7 +62,9 @@ class ElasticsearchEngineTest extends AbstractTestCase
                 'query' => [
                     'bool' => [
                         'must' => [
-                            ['query_string' => ['query' => '*zonda*']],
+                            ['simple_query_string' => [
+                            'query' => 'zonda',
+                            "default_operator" => "and"]],
                             ['match_phrase' => ['foo' => 1]],
                             ['terms' => ['bar' => [1, 3]]],
                         ]

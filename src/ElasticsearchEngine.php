@@ -144,7 +144,12 @@ class ElasticsearchEngine extends Engine
             'body' => [
                 'query' => [
                     'bool' => [
-                        'must' => [['query_string' => [ 'query' => "*{$builder->query}*"]]]
+                        'must' => [
+                            ["simple_query_string" => [
+                                "query" => $builder->query,
+                                "default_operator" => "and"
+                            ]]
+                        ]
                     ]
                 ]
             ]
