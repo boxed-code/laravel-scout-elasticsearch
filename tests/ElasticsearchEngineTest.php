@@ -18,7 +18,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
                 [
                     'update' => [
                         '_id' => 1,
-                        '_index' => 'scout',
+                        '_index' => 'table',
                         '_type' => 'table',
                     ]
                 ],
@@ -29,7 +29,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
             ]
         ]);
 
-        $engine = new ElasticsearchEngine($client, 'scout');
+        $engine = new ElasticsearchEngine($client);
         $engine->update(Collection::make([new TestModel]));
     }
 
@@ -41,14 +41,14 @@ class ElasticsearchEngineTest extends AbstractTestCase
                 [
                     'delete' => [
                         '_id' => 1,
-                        '_index' => 'scout',
+                        '_index' => 'table',
                         '_type' => 'table',
                     ]
                 ],
             ]
         ]);
 
-        $engine = new ElasticsearchEngine($client, 'scout');
+        $engine = new ElasticsearchEngine($client);
         $engine->delete(Collection::make([new TestModel]));
     }
 
@@ -56,7 +56,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
     {
         $client = Mockery::mock('Elasticsearch\Client');
         $client->shouldReceive('search')->with([
-            'index' => 'scout',
+            'index' => 'table',
             'type' => 'table',
             'body' => [
                 'query' => [
@@ -74,7 +74,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
             ]
         ]);
 
-        $engine = new ElasticsearchEngine($client, 'scout');
+        $engine = new ElasticsearchEngine($client);
         $builder = new \Laravel\Scout\Builder(new TestModel, 'zonda');
         $builder->where('foo', 1);
         $builder->where('bar', [1, 3]);
@@ -88,7 +88,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
         $client = Mockery::mock(\Elasticsearch\Client::class);
         $client->shouldReceive('search')->with('modified_by_callback');
 
-        $engine = new ElasticsearchEngine($client, 'scout');
+        $engine = new ElasticsearchEngine($client);
         $builder = new \Laravel\Scout\Builder(
             new TestModel(),
             'huayra',
@@ -107,7 +107,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
     public function test_map_correctly_maps_results_to_models()
     {
         $client = Mockery::mock('Elasticsearch\Client');
-        $engine = new ElasticsearchEngine($client, 'scout');
+        $engine = new ElasticsearchEngine($client);
 
         $builder = Mockery::mock(Builder::class);
 

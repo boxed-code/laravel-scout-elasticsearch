@@ -3,13 +3,13 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://travis-ci.com/boxed-code/laravel-scout-elasticsearch.svg?branch=master)](https://travis-ci.com/boxed-code/laravel-scout-elasticsearch)
 
-This is a basic [elastic](https://www.elastic.co/products/elasticsearch) search backed driver [for Laravel Scout](https://laravel.com/docs/5.8/scout). 
+A basic [elastic](https://www.elastic.co/products/elasticsearch) search backed driver [for Laravel Scout](https://laravel.com/docs/5.8/scout). 
 
 This driver has a simple configuration, requiring you to only publish the configuration and set the hostname of your elasticsearch node.
 
-Based on the original work of [ErickTamayo](https://github.com/ErickTamayo/laravel-scout-elastic).
+Note that this driver uses a separate index for each model type as elasticsearch mapping types have been deprecated in elasticsearch 6.0 and will be removed in 8.0, for more information see https://bit.ly/2TZVZvq.
 
-**Requires Scout 5.*, 6.* or 7.*, Laravel >=5.4, PHP >=7.0**
+Based on the original work of [ErickTamayo](https://github.com/ErickTamayo/laravel-scout-elastic). **Requires Scout ^5.0, ^6.0, or ^7.0, Laravel >=5.4, PHP >=7.0**
 
 ## Contents
 

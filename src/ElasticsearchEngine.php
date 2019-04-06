@@ -4,18 +4,11 @@ namespace BoxedCode\Laravel\Scout;
 
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
-use Elasticsearch\Client as Elastic;
+use Elasticsearch\Client;
 use Illuminate\Database\Eloquent\Collection;
 
 class ElasticsearchEngine extends Engine
-{
-    /**
-     * Index where the models will be saved.
-     *
-     * @var string
-     */
-    protected $index;
-    
+{    
     /**
      * Elastic where the instance of Elastic|\Elasticsearch\Client is stored.
      *
@@ -29,10 +22,9 @@ class ElasticsearchEngine extends Engine
      * @param  \Elasticsearch\Client  $elastic
      * @return void
      */
-    public function __construct(Elastic $elastic, $index)
+    public function __construct(Client $elastic)
     {
         $this->elastic = $elastic;
-        $this->index = $index;
     }
 
     /**
@@ -50,7 +42,12 @@ class ElasticsearchEngine extends Engine
             $params['body'][] = [
                 'update' => [
                     '_id' => $model->getKey(),
-                    '_index' => $this->index,
+                    '_index' => $model->searchableAs(),
+                    /**
+                     * @deprecated Document mapping types scheduled deprecated in 
+                     * elasticsearch 6.0 will be removed in 8.0.
+                     * https://bit.ly/2TZVZvq
+                     */
                     '_type' => $model->searchableAs(),
                 ]
             ];
@@ -78,7 +75,12 @@ class ElasticsearchEngine extends Engine
             $params['body'][] = [
                 'delete' => [
                     '_id' => $model->getKey(),
-                    '_index' => $this->index,
+                    '_index' => $model->searchableAs(),
+                    /**
+                     * @deprecated Document mapping types scheduled deprecated in 
+                     * elasticsearch 6.0 will be removed in 8.0.
+                     * https://bit.ly/2TZVZvq
+                     */
                     '_type' => $model->searchableAs(),
                 ]
             ];
@@ -132,8 +134,13 @@ class ElasticsearchEngine extends Engine
     protected function performSearch(Builder $builder, array $options = [])
     {
         $params = [
-            'index' => $this->index,
-            'type' => $builder->index ?: $builder->model->searchableAs(),
+            'index' => $builder->model->searchableAs(),
+            /**
+             * @deprecated Document mapping types scheduled deprecated in 
+             * elasticsearch 6.0 will be removed in 8.0.
+             * https://bit.ly/2TZVZvq
+             */
+            'type' => $builder->model->searchableAs(),
             'body' => [
                 'query' => [
                     'bool' => [
