@@ -1,12 +1,12 @@
 <?php
 
-namespace ScoutEngines\Elasticsearch;
+namespace BoxedCode\Laravel\Scout;
 
 use Laravel\Scout\EngineManager;
 use Illuminate\Support\ServiceProvider;
 use Elasticsearch\ClientBuilder as ElasticBuilder;
 
-class ElasticsearchProvider extends ServiceProvider
+class ElasticsearchServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.

@@ -1,16 +1,15 @@
 <?php
 
+namespace Tests;
+
+use BoxedCode\Laravel\Scout\ElasticsearchEngine;
 use Illuminate\Database\Eloquent\Collection;
 use Laravel\Scout\Builder;
-use ScoutEngines\Elasticsearch\ElasticsearchEngine;
+use Mockery;
+use Tests\Fixtures\TestModel;
 
-class ElasticsearchEngineTest extends PHPUnit_Framework_TestCase
+class ElasticsearchEngineTest extends AbstractTestCase
 {
-    public function tearDown()
-    {
-        Mockery::close();
-    }
-
     public function test_update_adds_objects_to_index()
     {
         $client = Mockery::mock('Elasticsearch\Client');
@@ -31,7 +30,7 @@ class ElasticsearchEngineTest extends PHPUnit_Framework_TestCase
         ]);
 
         $engine = new ElasticsearchEngine($client, 'scout');
-        $engine->update(Collection::make([new ElasticsearchEngineTestModel]));
+        $engine->update(Collection::make([new TestModel]));
     }
 
     public function test_delete_removes_objects_to_index()
@@ -50,7 +49,7 @@ class ElasticsearchEngineTest extends PHPUnit_Framework_TestCase
         ]);
 
         $engine = new ElasticsearchEngine($client, 'scout');
-        $engine->delete(Collection::make([new ElasticsearchEngineTestModel]));
+        $engine->delete(Collection::make([new TestModel]));
     }
 
     public function test_search_sends_correct_parameters_to_elasticsearch()
@@ -76,7 +75,7 @@ class ElasticsearchEngineTest extends PHPUnit_Framework_TestCase
         ]);
 
         $engine = new ElasticsearchEngine($client, 'scout');
-        $builder = new Laravel\Scout\Builder(new ElasticsearchEngineTestModel, 'zonda');
+        $builder = new \Laravel\Scout\Builder(new TestModel, 'zonda');
         $builder->where('foo', 1);
         $builder->where('bar', [1, 3]);
         $builder->orderBy('id', 'desc');
@@ -90,8 +89,8 @@ class ElasticsearchEngineTest extends PHPUnit_Framework_TestCase
         $client->shouldReceive('search')->with('modified_by_callback');
 
         $engine = new ElasticsearchEngine($client, 'scout');
-        $builder = new Laravel\Scout\Builder(
-            new ElasticsearchEngineTestModel(),
+        $builder = new \Laravel\Scout\Builder(
+            new TestModel(),
             'huayra',
             function (\Elasticsearch\Client $client, $query, $params) {
                 $this->assertNotEmpty($params);
@@ -114,8 +113,9 @@ class ElasticsearchEngineTest extends PHPUnit_Framework_TestCase
 
         $model = Mockery::mock('Illuminate\Database\Eloquent\Model');
         $model->shouldReceive('getScoutKey')->andReturn('1');
-        $model->shouldReceive('getScoutModelsByIds')->once()->with($builder, ['1'])->andReturn(Collection::make([$model]));
-
+        $model->shouldReceive('getScoutModelsByIds')->once()->with($builder, ['1'])->andReturn($models = Collection::make([$model]));
+        $model->shouldReceive('newCollection')->andReturn($models);
+        
         $results = $engine->map($builder, [
             'hits' => [
                 'total' => '1',
@@ -128,28 +128,5 @@ class ElasticsearchEngineTest extends PHPUnit_Framework_TestCase
         ], $model);
 
         $this->assertEquals(1, count($results));
-    }
-}
-
-class ElasticsearchEngineTestModel extends \Illuminate\Database\Eloquent\Model
-{
-    public function getIdAttribute()
-    {
-        return 1;
-    }
-
-    public function searchableAs()
-    {
-        return 'table';
-    }
-
-    public function getKey()
-    {
-        return '1';
-    }
-
-    public function toSearchableArray()
-    {
-        return ['id' => 1];
     }
 }

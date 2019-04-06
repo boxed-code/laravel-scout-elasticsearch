@@ -1,12 +1,11 @@
 <?php
 
-namespace ScoutEngines\Elasticsearch;
+namespace BoxedCode\Laravel\Scout;
 
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
 use Elasticsearch\Client as Elastic;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Collection as BaseCollection;
 
 class ElasticsearchEngine extends Engine
 {
@@ -212,22 +211,28 @@ class ElasticsearchEngine extends Engine
     public function map(Builder $builder, $results, $model)
     {
         if ($results['hits']['total'] === 0) {
-            return Collection::make();
+            return $model->newCollection();
         }
-
-        $keys = collect($results['hits']['hits'])
-                        ->pluck('_id')->values()->all();
-
-        $models = $model->getScoutModelsByIds(
-            $builder, $keys
-        )->keyBy(function ($model) {
-            return $model->getScoutKey();
-        });
-
-        return collect($results['hits']['hits'])->map(function ($hit) use ($model, $models) {
-            return isset($models[$hit['_id']]) ? $models[$hit['_id']] : null;
-        })->filter()->values();
+        $keys = collect($results['hits']['hits'])->pluck('_id')->values()->all();
+        return $model->getScoutModelsByIds(
+                $builder, $keys
+            )->filter(function ($model) use ($keys) {
+                return in_array($model->getScoutKey(), $keys);
+            });
     }
+
+    /**
+     * Flush all of the model's records from the engine.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @return void
+     */
+    public function flush($model)
+    {
+        $model->newQuery()
+            ->orderBy($model->getKeyName())
+            ->unsearchable();
+    } 
 
     /**
      * Get the total count from a raw result returned by the engine.
