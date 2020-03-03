@@ -30,7 +30,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
         ]);
 
         $engine = new ElasticsearchEngine($client);
-        $engine->update(Collection::make([new TestModel]));
+        $this->assertNull($engine->update(Collection::make([new TestModel])));
     }
 
     public function test_delete_removes_objects_to_index()
@@ -49,7 +49,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
         ]);
 
         $engine = new ElasticsearchEngine($client);
-        $engine->delete(Collection::make([new TestModel]));
+        $this->assertNull($engine->delete(Collection::make([new TestModel])));
     }
 
     public function test_search_sends_correct_parameters_to_elasticsearch()
@@ -74,14 +74,14 @@ class ElasticsearchEngineTest extends AbstractTestCase
                     ['id' => 'desc']
                 ]
             ]
-        ]);
+        ])->andReturn($return = [1, 2, 3]);
 
         $engine = new ElasticsearchEngine($client);
         $builder = new \Laravel\Scout\Builder(new TestModel, 'zonda');
         $builder->where('foo', 1);
         $builder->where('bar', [1, 3]);
         $builder->orderBy('id', 'desc');
-        $engine->search($builder);
+        $this->assertSame($return, $engine->search($builder));
     }
 
     public function test_builder_callback_can_manipulate_search_parameters_to_elasticsearch()

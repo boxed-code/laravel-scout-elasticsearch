@@ -3,7 +3,7 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://travis-ci.com/boxed-code/laravel-scout-elasticsearch.svg?branch=master)](https://travis-ci.com/boxed-code/laravel-scout-elasticsearch)
 
-A basic [elastic](https://www.elastic.co/products/elasticsearch) search backed driver [for Laravel Scout](https://laravel.com/docs/5.8/scout). 
+A basic [elastic](https://www.elastic.co/products/elasticsearch) search backed driver [for Laravel Scout](https://laravel.com/docs/6.0/scout). 
 
 This driver has a simple configuration, requiring you to set the hostname of your elasticsearch node.
 
@@ -11,7 +11,7 @@ Note that this driver uses a separate index for each model type as elasticsearch
 
 By default, the driver uses the `simple_query_string` full text parser with `and` as the default operator. More information on the functionality & syntax of this query format can be found [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html).
 
-**Requires Scout ^5.0, ^6.0 or ^7.0, Laravel >=5.4 & PHP >=7.0**. Based on the original work of [ErickTamayo](https://github.com/ErickTamayo/laravel-scout-elastic)
+**Requires Scout ^7.0 or ^8.0, Laravel >=5.4 & PHP >=7.0**. Based on the original work of [ErickTamayo](https://github.com/ErickTamayo/laravel-scout-elastic)
 
 ## Contents
 
