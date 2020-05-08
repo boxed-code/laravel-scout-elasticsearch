@@ -1,6 +1,7 @@
 # Laravel Scout Elasticsearch Driver
 
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Latest Stable Version](https://poser.pugx.org/boxed-code/laravel-scout-elasticsearch/v/stable)](https://packagist.org/packages/boxed-code/laravel-scout-elasticsearch)
+[![License](https://poser.pugx.org/boxed-code/laravel-scout-elasticsearch/license)](https://packagist.org/packages/boxed-code/laravel-scout-elasticsearch)
 [![Build Status](https://travis-ci.com/boxed-code/laravel-scout-elasticsearch.svg?branch=master)](https://travis-ci.com/boxed-code/laravel-scout-elasticsearch)
 
 A basic [elastic](https://www.elastic.co/products/elasticsearch) search backed driver [for Laravel Scout](https://laravel.com/docs/6.0/scout). 
@@ -51,6 +52,7 @@ Add the following to your scout configuration:
 
 ...
     'elasticsearch' => [
+        'debug' => false,
         'hosts' => [
             env('ELASTICSEARCH_HOST', 'http://localhost'),
         ],
