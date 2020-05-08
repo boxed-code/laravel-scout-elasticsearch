@@ -17,20 +17,20 @@ class ElasticsearchEngineTest extends AbstractTestCase
             'body' => [
                 [
                     'update' => [
-                        '_id' => 1,
+                        '_id'    => 1,
                         '_index' => 'table',
-                        '_type' => 'table',
-                    ]
+                        '_type'  => 'table',
+                    ],
                 ],
                 [
-                    'doc' => ['id' => 1 ],
-                    'doc_as_upsert' => true
-                ]
-            ]
+                    'doc'           => ['id' => 1],
+                    'doc_as_upsert' => true,
+                ],
+            ],
         ]);
 
         $engine = new ElasticsearchEngine($client);
-        $this->assertNull($engine->update(Collection::make([new TestModel])));
+        $this->assertNull($engine->update(Collection::make([new TestModel()])));
     }
 
     public function test_delete_removes_objects_to_index()
@@ -40,16 +40,16 @@ class ElasticsearchEngineTest extends AbstractTestCase
             'body' => [
                 [
                     'delete' => [
-                        '_id' => 1,
+                        '_id'    => 1,
                         '_index' => 'table',
-                        '_type' => 'table',
-                    ]
+                        '_type'  => 'table',
+                    ],
                 ],
-            ]
+            ],
         ]);
 
         $engine = new ElasticsearchEngine($client);
-        $this->assertNull($engine->delete(Collection::make([new TestModel])));
+        $this->assertNull($engine->delete(Collection::make([new TestModel()])));
     }
 
     public function test_search_sends_correct_parameters_to_elasticsearch()
@@ -57,27 +57,27 @@ class ElasticsearchEngineTest extends AbstractTestCase
         $client = Mockery::mock('Elasticsearch\Client');
         $client->shouldReceive('search')->with([
             'index' => 'table',
-            'type' => 'table',
-            'body' => [
+            'type'  => 'table',
+            'body'  => [
                 'query' => [
                     'bool' => [
                         'must' => [
                             ['simple_query_string' => [
-                            'query' => 'zonda',
-                            "default_operator" => "and"]],
+                                'query'            => 'zonda',
+                                'default_operator' => 'and', ]],
                             ['match_phrase' => ['foo' => 1]],
-                            ['terms' => ['bar' => [1, 3]]],
-                        ]
-                    ]
+                            ['terms'        => ['bar' => [1, 3]]],
+                        ],
+                    ],
                 ],
                 'sort' => [
-                    ['id' => 'desc']
-                ]
-            ]
+                    ['id' => 'desc'],
+                ],
+            ],
         ])->andReturn($return = [1, 2, 3]);
 
         $engine = new ElasticsearchEngine($client);
-        $builder = new \Laravel\Scout\Builder(new TestModel, 'zonda');
+        $builder = new \Laravel\Scout\Builder(new TestModel(), 'zonda');
         $builder->where('foo', 1);
         $builder->where('bar', [1, 3]);
         $builder->orderBy('id', 'desc');
@@ -117,16 +117,16 @@ class ElasticsearchEngineTest extends AbstractTestCase
         $model->shouldReceive('getScoutKey')->andReturn('1');
         $model->shouldReceive('getScoutModelsByIds')->once()->with($builder, ['1'])->andReturn($models = Collection::make([$model]));
         $model->shouldReceive('newCollection')->andReturn($models);
-        
+
         $results = $engine->map($builder, [
             'hits' => [
                 'total' => '1',
-                'hits' => [
+                'hits'  => [
                     [
-                        '_id' => '1'
-                    ]
-                ]
-            ]
+                        '_id' => '1',
+                    ],
+                ],
+            ],
         ], $model);
 
         $this->assertEquals(1, count($results));

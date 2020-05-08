@@ -4,15 +4,15 @@ namespace Tests;
 
 use BoxedCode\Laravel\Scout\ElasticsearchEngine;
 use BoxedCode\Laravel\Scout\ElasticsearchServiceProvider;
+use Elasticsearch\Client as ElasticClient;
 use Elasticsearch\ClientBuilder as ElasticBuilder;
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Contracts\Container\Container;
 use Laravel\Scout\EngineManager;
 use Mockery;
 use Psr\Log\LoggerInterface;
-use \Elasticsearch\Client as ElasticClient;
 
-class ElasticsearchServiceProviderTestCase extends AbstractTestCase
+class ElasticsearchProviderTestCase extends AbstractTestCase
 {
     public function test_binds_elastic_builder()
     {

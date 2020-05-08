@@ -2,13 +2,13 @@
 
 namespace BoxedCode\Laravel\Scout;
 
-use Laravel\Scout\Builder;
-use Laravel\Scout\Engines\Engine;
 use Elasticsearch\Client;
 use Illuminate\Database\Eloquent\Collection;
+use Laravel\Scout\Builder;
+use Laravel\Scout\Engines\Engine;
 
 class ElasticsearchEngine extends Engine
-{    
+{
     /**
      * Elastic where the instance of Elastic|\Elasticsearch\Client is stored.
      *
@@ -19,7 +19,8 @@ class ElasticsearchEngine extends Engine
     /**
      * Create a new engine instance.
      *
-     * @param  \Elasticsearch\Client  $elastic
+     * @param \Elasticsearch\Client $elastic
+     *
      * @return void
      */
     public function __construct(Client $elastic)
@@ -30,30 +31,30 @@ class ElasticsearchEngine extends Engine
     /**
      * Update the given model in the index.
      *
-     * @param  Collection  $models
+     * @param Collection $models
+     *
      * @return void
      */
     public function update($models)
     {
         $params['body'] = [];
 
-        $models->each(function($model) use (&$params)
-        {
+        $models->each(function ($model) use (&$params) {
             $params['body'][] = [
                 'update' => [
-                    '_id' => $model->getKey(),
+                    '_id'    => $model->getKey(),
                     '_index' => $model->searchableAs(),
                     /**
-                     * @deprecated Document mapping types scheduled deprecated in 
+                     * @deprecated Document mapping types scheduled deprecated in
                      * elasticsearch 6.0 will be removed in 8.0.
                      * https://bit.ly/2TZVZvq
                      */
                     '_type' => $model->searchableAs(),
-                ]
+                ],
             ];
             $params['body'][] = [
-                'doc' => $model->toSearchableArray(),
-                'doc_as_upsert' => true
+                'doc'           => $model->toSearchableArray(),
+                'doc_as_upsert' => true,
             ];
         });
 
@@ -63,26 +64,26 @@ class ElasticsearchEngine extends Engine
     /**
      * Remove the given model from the index.
      *
-     * @param  Collection  $models
+     * @param Collection $models
+     *
      * @return void
      */
     public function delete($models)
     {
         $params['body'] = [];
 
-        $models->each(function($model) use (&$params)
-        {
+        $models->each(function ($model) use (&$params) {
             $params['body'][] = [
                 'delete' => [
-                    '_id' => $model->getKey(),
+                    '_id'    => $model->getKey(),
                     '_index' => $model->searchableAs(),
                     /**
-                     * @deprecated Document mapping types scheduled deprecated in 
+                     * @deprecated Document mapping types scheduled deprecated in
                      * elasticsearch 6.0 will be removed in 8.0.
                      * https://bit.ly/2TZVZvq
                      */
                     '_type' => $model->searchableAs(),
-                ]
+                ],
             ];
         });
 
@@ -92,34 +93,36 @@ class ElasticsearchEngine extends Engine
     /**
      * Perform the given search on the engine.
      *
-     * @param  Builder  $builder
+     * @param Builder $builder
+     *
      * @return mixed
      */
     public function search(Builder $builder)
     {
         return $this->performSearch($builder, array_filter([
             'numericFilters' => $this->filters($builder),
-            'size' => $builder->limit,
+            'size'           => $builder->limit,
         ]));
     }
 
     /**
      * Perform the given search on the engine.
      *
-     * @param  Builder  $builder
-     * @param  int  $perPage
-     * @param  int  $page
+     * @param Builder $builder
+     * @param int     $perPage
+     * @param int     $page
+     *
      * @return mixed
      */
     public function paginate(Builder $builder, $perPage, $page)
     {
         $result = $this->performSearch($builder, [
             'numericFilters' => $this->filters($builder),
-            'from' => (($page * $perPage) - $perPage),
-            'size' => $perPage,
+            'from'           => (($page * $perPage) - $perPage),
+            'size'           => $perPage,
         ]);
 
-       $result['nbPages'] = $result['hits']['total']/$perPage;
+        $result['nbPages'] = $result['hits']['total'] / $perPage;
 
         return $result;
     }
@@ -127,8 +130,9 @@ class ElasticsearchEngine extends Engine
     /**
      * Perform the given search on the engine.
      *
-     * @param  Builder  $builder
-     * @param  array  $options
+     * @param Builder $builder
+     * @param array   $options
+     *
      * @return mixed
      */
     protected function performSearch(Builder $builder, array $options = [])
@@ -136,7 +140,7 @@ class ElasticsearchEngine extends Engine
         $params = [
             'index' => $builder->model->searchableAs(),
             /**
-             * @deprecated Document mapping types scheduled deprecated in 
+             * @deprecated Document mapping types scheduled deprecated in
              * elasticsearch 6.0 will be removed in 8.0.
              * https://bit.ly/2TZVZvq
              */
@@ -145,14 +149,14 @@ class ElasticsearchEngine extends Engine
                 'query' => [
                     'bool' => [
                         'must' => [
-                            ["simple_query_string" => [
-                                "query" => $builder->query,
-                                "default_operator" => "and"
-                            ]]
-                        ]
-                    ]
-                ]
-            ]
+                            ['simple_query_string' => [
+                                'query'            => $builder->query,
+                                'default_operator' => 'and',
+                            ]],
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         if ($sort = $this->sort($builder)) {
@@ -168,8 +172,10 @@ class ElasticsearchEngine extends Engine
         }
 
         if (isset($options['numericFilters']) && count($options['numericFilters'])) {
-            $params['body']['query']['bool']['must'] = array_merge($params['body']['query']['bool']['must'],
-                $options['numericFilters']);
+            $params['body']['query']['bool']['must'] = array_merge(
+                $params['body']['query']['bool']['must'],
+                $options['numericFilters']
+            );
         }
 
         if ($builder->callback) {
@@ -187,7 +193,8 @@ class ElasticsearchEngine extends Engine
     /**
      * Get the filter array for the query.
      *
-     * @param  Builder  $builder
+     * @param Builder $builder
+     *
      * @return array
      */
     protected function filters(Builder $builder)
@@ -204,7 +211,8 @@ class ElasticsearchEngine extends Engine
     /**
      * Pluck and return the primary keys of the given results.
      *
-     * @param  mixed  $results
+     * @param mixed $results
+     *
      * @return \Illuminate\Support\Collection
      */
     public function mapIds($results)
@@ -215,9 +223,10 @@ class ElasticsearchEngine extends Engine
     /**
      * Map the given results to instances of the given model.
      *
-     * @param  \Laravel\Scout\Builder  $builder
-     * @param  mixed  $results
-     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param \Laravel\Scout\Builder              $builder
+     * @param mixed                               $results
+     * @param \Illuminate\Database\Eloquent\Model $model
+     *
      * @return Collection
      */
     public function map(Builder $builder, $results, $model)
@@ -226,9 +235,11 @@ class ElasticsearchEngine extends Engine
             return $model->newCollection();
         }
         $keys = collect($results['hits']['hits'])->pluck('_id')->values()->all();
+
         return $model->getScoutModelsByIds(
-                $builder, $keys
-            )->filter(function ($model) use ($keys) {
+            $builder,
+            $keys
+        )->filter(function ($model) use ($keys) {
                 return in_array($model->getScoutKey(), $keys);
             });
     }
@@ -236,7 +247,8 @@ class ElasticsearchEngine extends Engine
     /**
      * Flush all of the model's records from the engine.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param \Illuminate\Database\Eloquent\Model $model
+     *
      * @return void
      */
     public function flush($model)
@@ -244,12 +256,13 @@ class ElasticsearchEngine extends Engine
         $model->newQuery()
             ->orderBy($model->getKeyName())
             ->unsearchable();
-    } 
+    }
 
     /**
      * Get the total count from a raw result returned by the engine.
      *
-     * @param  mixed  $results
+     * @param mixed $results
+     *
      * @return int
      */
     public function getTotalCount($results)
@@ -260,7 +273,8 @@ class ElasticsearchEngine extends Engine
     /**
      * Generates the sort if theres any.
      *
-     * @param  Builder $builder
+     * @param Builder $builder
+     *
      * @return array|null
      */
     protected function sort($builder)
@@ -269,7 +283,7 @@ class ElasticsearchEngine extends Engine
             return null;
         }
 
-        return collect($builder->orders)->map(function($order) {
+        return collect($builder->orders)->map(function ($order) {
             return [$order['column'] => $order['direction']];
         })->toArray();
     }
