@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Laravel\Scout\Builder;
 use Mockery;
 use Tests\Fixtures\TestModel;
+use Illuminate\Support\LazyCollection;
 
 class ElasticsearchEngineTest extends AbstractTestCase
 {
@@ -88,7 +89,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
     {
         /** @var \Elasticsearch\Client|\Mockery\MockInterface $client */
         $client = Mockery::mock(\Elasticsearch\Client::class);
-        $client->shouldReceive('search')->with('modified_by_callback');
+        $client->shouldReceive('search')->with(['modified_by_callback']);
 
         $engine = new ElasticsearchEngine($client);
         $builder = new \Laravel\Scout\Builder(
@@ -97,7 +98,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
             function (\Elasticsearch\Client $client, $query, $params) {
                 $this->assertNotEmpty($params);
                 $this->assertEquals('huayra', $query);
-                $params = 'modified_by_callback';
+                $params = ['modified_by_callback'];
 
                 return $client->search($params);
             }
@@ -130,5 +131,54 @@ class ElasticsearchEngineTest extends AbstractTestCase
         ], $model);
 
         $this->assertEquals(1, count($results));
+    }
+
+    public function test_lazy_map_correctly_maps_results_to_models()
+    {
+        $client = Mockery::mock('Elasticsearch\Client');
+        $engine = new ElasticsearchEngine($client);
+
+        $builder = Mockery::mock(Builder::class);
+
+        $model = Mockery::mock('Illuminate\Database\Eloquent\Model');
+        $model->shouldReceive('getScoutKey')->andReturn('1');
+        $model->shouldReceive('queryScoutModelsByIds')->andReturn($model);
+        $model->shouldReceive('cursor')->andReturn($model);
+        $model->shouldReceive('filter')->andReturn($model);
+        $model->shouldReceive('sortBy')->andReturn($model);
+        $model->shouldReceive('values')->andReturn(LazyCollection::make([1]));
+
+        $results = $engine->lazyMap($builder, [
+            'hits' => [
+                'total' => 1,
+                'hits'  => [
+                    [
+                        '_id' => '1',
+                    ],
+                ],
+            ],
+        ], $model);
+
+        $this->assertCount(1, $results);
+    }
+
+    public function test_lazy_map_correctly_maps_empty()
+    {
+        $client = Mockery::mock('Elasticsearch\Client');
+        $engine = new ElasticsearchEngine($client);
+
+        $builder = Mockery::mock(Builder::class);
+
+        $model = Mockery::mock('Illuminate\Database\Eloquent\Model');
+        $model->shouldReceive('newCollection')->andReturn(collect([]));
+
+        $results = $engine->lazyMap($builder, [
+            'hits' => [
+                'total' => 0,
+                'hits'  => [],
+            ],
+        ], $model);
+
+        $this->assertCount(0, $results);
     }
 }

@@ -6,6 +6,7 @@ use Elasticsearch\Client;
 use Illuminate\Database\Eloquent\Collection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
+use Illuminate\Support\LazyCollection;
 
 class ElasticsearchEngine extends Engine
 {
@@ -234,14 +235,79 @@ class ElasticsearchEngine extends Engine
         if ($results['hits']['total'] === 0) {
             return $model->newCollection();
         }
+
         $keys = collect($results['hits']['hits'])->pluck('_id')->values()->all();
 
         return $model->getScoutModelsByIds(
             $builder,
             $keys
         )->filter(function ($model) use ($keys) {
-                return in_array($model->getScoutKey(), $keys);
-            });
+            return in_array($model->getScoutKey(), $keys);
+        });
+    }
+
+    /**
+     * Map the given results to instances of the given model via a lazy collection.
+     *
+     * @param  \Laravel\Scout\Builder  $builder
+     * @param  mixed  $results
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @return \Illuminate\Support\LazyCollection
+     */
+    public function lazyMap(Builder $builder, $results, $model)
+    {
+        if (intval($results['hits']['total']) === 0) {
+            return LazyCollection::make($model->newCollection());
+        }
+
+        $objectIds = collect($results['hits']['hits'])->pluck('_id')->values()->all();
+
+        $objectIdPositions = array_flip($objectIds);
+
+        return $model->queryScoutModelsByIds(
+                $builder, $objectIds
+            )->cursor()->filter(function ($model) use ($objectIds) {
+                return in_array($model->getScoutKey(), $objectIds);
+            })->sortBy(function ($model) use ($objectIdPositions) {
+                return $objectIdPositions[$model->getScoutKey()];
+            })->values();
+    }
+
+    /**
+     * Create a search index.
+     *
+     * @param  string  $name
+     * @param  array  $options
+     * @return mixed
+     */
+    public function createIndex($name, array $options = [])
+    {
+        throw new Exception('Database indexes are created automatically upon adding objects.');
+    }
+
+    /**
+     * Delete a search index.
+     *
+     * @param  string  $name
+     * @return mixed
+     */
+    public function deleteIndex($name)
+    {
+        $this->elastic->bulk([
+            'body' => [
+                [
+                    'delete' => [
+                        '_index' => $name,
+                        /**
+                         * @deprecated Document mapping types scheduled deprecated in
+                         * elasticsearch 6.0 will be removed in 8.0.
+                         * https://bit.ly/2TZVZvq
+                         */
+                        '_type' => $name,
+                    ],
+                ]
+            ]
+        ]);
     }
 
     /**
