@@ -2,7 +2,7 @@
 
 [![Latest Stable Version](https://poser.pugx.org/boxed-code/laravel-scout-elasticsearch/v/stable)](https://packagist.org/packages/boxed-code/laravel-scout-elasticsearch)
 [![License](https://poser.pugx.org/boxed-code/laravel-scout-elasticsearch/license)](https://packagist.org/packages/boxed-code/laravel-scout-elasticsearch)
-[![Build Status](https://travis-ci.com/boxed-code/laravel-scout-elasticsearch.svg?branch=master)](https://travis-ci.com/boxed-code/laravel-scout-elasticsearch)
+[![Tests](https://github.com/boxed-code/laravel-scout-elasticsearch/actions/workflows/run_tests.yml/badge.svg)](https://github.com/boxed-code/laravel-scout-elasticsearch/actions/workflows/run_tests.yml)
 
 A basic [elastic](https://www.elastic.co/products/elasticsearch) search backed driver [for Laravel Scout](https://laravel.com/docs/6.0/scout). 
 
