@@ -4,9 +4,9 @@ namespace BoxedCode\Laravel\Scout;
 
 use Elasticsearch\Client;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\LazyCollection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
-use Illuminate\Support\LazyCollection;
 
 class ElasticsearchEngine extends Engine
 {
@@ -249,9 +249,10 @@ class ElasticsearchEngine extends Engine
     /**
      * Map the given results to instances of the given model via a lazy collection.
      *
-     * @param  \Laravel\Scout\Builder  $builder
-     * @param  mixed  $results
-     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param \Laravel\Scout\Builder              $builder
+     * @param mixed                               $results
+     * @param \Illuminate\Database\Eloquent\Model $model
+     *
      * @return \Illuminate\Support\LazyCollection
      */
     public function lazyMap(Builder $builder, $results, $model)
@@ -265,19 +266,21 @@ class ElasticsearchEngine extends Engine
         $objectIdPositions = array_flip($objectIds);
 
         return $model->queryScoutModelsByIds(
-                $builder, $objectIds
-            )->cursor()->filter(function ($model) use ($objectIds) {
-                return in_array($model->getScoutKey(), $objectIds);
-            })->sortBy(function ($model) use ($objectIdPositions) {
-                return $objectIdPositions[$model->getScoutKey()];
-            })->values();
+            $builder,
+            $objectIds
+        )->cursor()->filter(function ($model) use ($objectIds) {
+            return in_array($model->getScoutKey(), $objectIds);
+        })->sortBy(function ($model) use ($objectIdPositions) {
+            return $objectIdPositions[$model->getScoutKey()];
+        })->values();
     }
 
     /**
      * Create a search index.
      *
-     * @param  string  $name
-     * @param  array  $options
+     * @param string $name
+     * @param array  $options
+     *
      * @return mixed
      */
     public function createIndex($name, array $options = [])
@@ -288,7 +291,8 @@ class ElasticsearchEngine extends Engine
     /**
      * Delete a search index.
      *
-     * @param  string  $name
+     * @param string $name
+     *
      * @return mixed
      */
     public function deleteIndex($name)
