@@ -282,7 +282,7 @@ class ElasticsearchEngine extends Engine
      */
     public function createIndex($name, array $options = [])
     {
-        throw new Exception('Database indexes are created automatically upon adding objects.');
+        throw new \Exception('Database indexes are created automatically upon adding objects.');
     }
 
     /**
