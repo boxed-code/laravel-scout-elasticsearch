@@ -293,21 +293,7 @@ class ElasticsearchEngine extends Engine
      */
     public function deleteIndex($name)
     {
-        $this->elastic->bulk([
-            'body' => [
-                [
-                    'delete' => [
-                        '_index' => $name,
-                        /**
-                         * @deprecated Document mapping types scheduled deprecated in
-                         * elasticsearch 6.0 will be removed in 8.0.
-                         * https://bit.ly/2TZVZvq
-                         */
-                        '_type' => $name,
-                    ],
-                ]
-            ]
-        ]);
+        $this->elastic->indices()->delete(['index' => $name]);
     }
 
     /**
